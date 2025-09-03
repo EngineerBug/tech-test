@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "DATA_STORE")
@@ -48,4 +49,19 @@ public class DataBodyEntity {
             createdTimestamp = Instant.now();
         }
     }
+
+    /**
+     * To be equal, two DataBodyEntrys must have the same header name, header type and body.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        DataBodyEntity that = (DataBodyEntity) obj;
+
+        return Objects.equals(this.dataHeaderEntity.getName(), that.dataHeaderEntity.getName()) &&
+           Objects.equals(this.dataHeaderEntity.getBlocktype(), that.dataHeaderEntity.getBlocktype()) &&
+           Objects.equals(this.dataBody, that.getDataBody());
+    } 
 }

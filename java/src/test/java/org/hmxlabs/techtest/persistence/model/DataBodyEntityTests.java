@@ -31,9 +31,6 @@ public class DataBodyEntityTests {
         assertThat(dataBodyEntity.getDataBody()).isNotNull();
     }
 
-    /**
-     * TODO: This test intentionally fails and the code it tests against will need to be fixed.
-     */
     @Test
     public void checkTwoDataBodiesAreEqualAsExpected() {
 

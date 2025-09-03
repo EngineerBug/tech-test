@@ -16,7 +16,6 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
-
 import java.time.Instant;
 
 @Entity
@@ -42,7 +41,6 @@ public class DataHeaderEntity {
     @Column(name = "BLOCKTYPE")
     @Enumerated(EnumType.STRING)
     private BlockTypeEnum blocktype;
-
 
     @Column(name = "CREATED_TIMESTAMP")
     private Instant createdTimestamp;
