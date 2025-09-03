@@ -12,14 +12,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.retry.annotation.EnableRetry;
-
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import static org.hmxlabs.techtest.Constant.DUMMY_DATA;
 
-
+@Slf4j
 @EnableRetry
 @SpringBootApplication
 public class TechTestApplication {
@@ -37,11 +37,13 @@ public class TechTestApplication {
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void initiatePushDataFlow() throws JsonProcessingException, UnsupportedEncodingException {
+		log.info("Starting initial data push...");
 		pushData();
 
 		queryData();
 
 		updateData();
+		log.info("Finished initial data push");
 	}
 
 	private void updateData() throws UnsupportedEncodingException {

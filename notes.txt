@@ -1,0 +1,6 @@
+Start server:
+gradle build
+
+tear down server:
+netstat -ano | findstr :8090
+taskkill /PID {pid} /F
