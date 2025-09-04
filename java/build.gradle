@@ -1,6 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '3.2.3'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'org.hmxlabs'
@@ -12,7 +13,6 @@ repositories {
 }
 
 dependencies {
-
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.5.4")
 	implementation("org.springframework.boot:spring-boot-starter-web:3.5.4")
 	implementation("org.springframework.boot:spring-boot-starter-logging:3.5.4")
@@ -28,8 +28,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test:3.5.4")
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
 	testImplementation("org.assertj:assertj-core:3.27.3")
-
-
 }
 
 test {
@@ -43,4 +41,25 @@ test {
     systemProperty 'spring.output.ansi.enabled', 'always'
     systemProperty 'logging.level.org.springframework', 'DEBUG'
     systemProperty 'logging.level.your.package.name', 'DEBUG'
+
+	finalizedBy jacocoTestReport // run report after tests
+}
+
+jacocoTestReport {
+    dependsOn test // run tests before generating report
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80 // fail build if coverage < 80%
+            }
+        }
+    }
 }
