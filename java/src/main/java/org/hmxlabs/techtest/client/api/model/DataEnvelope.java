@@ -18,4 +18,7 @@ public class DataEnvelope {
 
     @NotNull
     private DataBody dataBody;
+
+    @NotNull
+    private DataChecksum dataChecksum;
 }

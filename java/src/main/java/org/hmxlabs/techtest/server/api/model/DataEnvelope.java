@@ -15,11 +15,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class DataEnvelope {
-
+    
     @NotNull
     @Valid
     private DataHeader dataHeader;
 
     @NotNull
     private DataBody dataBody;
+
+    @NotNull
+    private DataChecksum dataChecksum;
 }
