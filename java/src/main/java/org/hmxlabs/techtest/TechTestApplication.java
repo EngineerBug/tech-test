@@ -1,6 +1,7 @@
 package org.hmxlabs.techtest;
 
 import org.hmxlabs.techtest.client.api.model.DataBody;
+import org.hmxlabs.techtest.client.api.model.DataChecksum;
 import org.hmxlabs.techtest.client.api.model.DataEnvelope;
 import org.hmxlabs.techtest.client.api.model.DataHeader;
 import org.hmxlabs.techtest.client.component.Client;
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.retry.annotation.EnableRetry;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.UnsupportedEncodingException;
@@ -49,7 +51,9 @@ public class TechTestApplication {
 	private void pushData() throws JsonProcessingException {
 		DataBody dataBody = new DataBody(DUMMY_DATA);
 		DataHeader dataHeader = new DataHeader(HEADER_NAME, BlockTypeEnum.BLOCKTYPEA);
-		DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody);
+		DataChecksum checksum = new DataChecksum(MD5_CHECKSUM);
+
+		DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, checksum);
 
 		client.pushData(dataEnvelope);
 	}

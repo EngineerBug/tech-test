@@ -5,6 +5,11 @@ import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.service.DataBodyService;
 import org.hmxlabs.techtest.server.component.Server;
+
+import java.util.Objects;
+
+import org.hmxlabs.techtest.Utils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,11 +30,16 @@ public class ServerImpl implements Server {
     @Override
     public boolean saveDataEnvelope(DataEnvelope envelope) {
 
-        // Save to persistence.
-        persist(envelope);
+        String serverChecksumString = Utils.hashUTF8ToMD5(envelope.getDataBody().getDataBody());
 
-        log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
-        return true;
+        if (Objects.equals(serverChecksumString, envelope.getDataChecksum().getDataChecksum())) {
+            persist(envelope);
+            log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
+            return true;
+        }
+        log.warn("Data NOT persisted due to mismatched checksums, data name: {}", envelope.getDataHeader().getName());
+        log.warn("Checksums: client, {} and server, {}", envelope.getDataChecksum(), serverChecksumString);
+        return false;
     }
 
     private void persist(DataEnvelope envelope) {

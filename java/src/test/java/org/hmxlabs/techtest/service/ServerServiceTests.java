@@ -19,6 +19,10 @@ import java.security.NoSuchAlgorithmException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hmxlabs.techtest.TestDataHelper.createTestDataEnvelopeApiObject;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.hmxlabs.techtest.TestDataHelper.createFaultyTestDataEnvelopeApiObject;
 
 @ExtendWith(MockitoExtension.class)
 public class ServerServiceTests {
@@ -50,6 +54,14 @@ public class ServerServiceTests {
         boolean success = server.saveDataEnvelope(testDataEnvelope);
 
         assertThat(success).isTrue();
-        //verify(dataBodyServiceImplMock, times(1)).saveDataBody(eq(expectedDataBodyEntity));
+        verify(dataBodyServiceImplMock, times(1)).saveDataBody(eq(expectedDataBodyEntity));
+    }
+
+    @Test
+    public void shouldNotSaveDataWhenChecksumsDoNotMatch() throws NoSuchAlgorithmException, IOException {
+        DataEnvelope faultyDataEnvelope = createFaultyTestDataEnvelopeApiObject();
+        boolean success = server.saveDataEnvelope(faultyDataEnvelope);
+
+        assertThat(success).isFalse();
     }
 }

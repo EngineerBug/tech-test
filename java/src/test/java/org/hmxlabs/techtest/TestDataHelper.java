@@ -1,6 +1,7 @@
 package org.hmxlabs.techtest;
 
 import org.hmxlabs.techtest.server.api.model.DataBody;
+import org.hmxlabs.techtest.server.api.model.DataChecksum;
 import org.hmxlabs.techtest.server.api.model.DataEnvelope;
 import org.hmxlabs.techtest.server.api.model.DataHeader;
 import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
@@ -14,6 +15,7 @@ public class TestDataHelper {
     public static final String TEST_NAME = "Test";
     public static final String TEST_NAME_EMPTY = "";
     public static final String DUMMY_DATA = "AKCp5fU4WNWKBVvhXsbNhqk33tawri9iJUkA5o4A6YqpwvAoYjajVw8xdEw6r9796h1wEp29D";
+    public static final DataChecksum CHECKSUM = new DataChecksum(Utils.hashUTF8ToMD5(DUMMY_DATA));
 
     public static DataHeaderEntity createTestDataHeaderEntity(Instant expectedTimestamp) {
         DataHeaderEntity dataHeaderEntity = new DataHeaderEntity();
@@ -34,7 +36,16 @@ public class TestDataHelper {
         DataBody dataBody = new DataBody(DUMMY_DATA);
         DataHeader dataHeader = new DataHeader(TEST_NAME, BlockTypeEnum.BLOCKTYPEA);
 
-        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody);
+        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, CHECKSUM);
+        return dataEnvelope;
+    }
+
+    public static DataEnvelope createFaultyTestDataEnvelopeApiObject() {
+        DataBody dataBody = new DataBody(DUMMY_DATA);
+        DataHeader dataHeader = new DataHeader(TEST_NAME, BlockTypeEnum.BLOCKTYPEA);
+        DataChecksum dataChecksum = new DataChecksum(Utils.hashUTF8ToMD5("SOME INCORRECT DATA"));
+
+        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, dataChecksum);
         return dataEnvelope;
     }
 
@@ -42,7 +53,7 @@ public class TestDataHelper {
         DataBody dataBody = new DataBody(DUMMY_DATA);
         DataHeader dataHeader = new DataHeader(TEST_NAME_EMPTY, BlockTypeEnum.BLOCKTYPEA);
 
-        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody);
+        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, CHECKSUM);
         return dataEnvelope;
     }
 }

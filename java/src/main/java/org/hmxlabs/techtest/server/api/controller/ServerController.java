@@ -34,12 +34,15 @@ public class ServerController {
 
     @PostMapping(value = "/pushdata", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) throws IOException, NoSuchAlgorithmException {
-
         log.info("Data envelope received: {}", dataEnvelope.getDataHeader().getName());
+
         boolean checksumPass = server.saveDataEnvelope(dataEnvelope);
 
-        log.info("Data envelope persisted. Attribute name: {}", dataEnvelope.getDataHeader().getName());
-        return ResponseEntity.ok(checksumPass);
+        if (checksumPass) {
+            log.info("Data envelope persisted. Attribute name: {}", dataEnvelope.getDataHeader().getName());
+            return ResponseEntity.ok(checksumPass); // TODO send correct response
+        }
+        log.info("Data envelope NOT persisted due to mismatched checksums. Attribute name: {}", dataEnvelope.getDataHeader().getName());
+        return ResponseEntity.ok(checksumPass); // TODO send correct response
     }
-
 }
