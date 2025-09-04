@@ -34,4 +34,13 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+    
+    // For Spring Boot test logging
+    systemProperty 'spring.output.ansi.enabled', 'always'
+    systemProperty 'logging.level.org.springframework', 'DEBUG'
+    systemProperty 'logging.level.your.package.name', 'DEBUG'
 }
