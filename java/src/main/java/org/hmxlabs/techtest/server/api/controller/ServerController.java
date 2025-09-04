@@ -71,18 +71,23 @@ public class ServerController {
             log.error("Exception while persisting data envelope", e);
             return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(500));
         }
-        
     }
 
     /**
-     * 
+     * Spring automatically handles not being able to resolve blockType to a BlockTypeEnum
      * @param blocktype - 
      * @return 
      * @throws IOException
      */
-    @GetMapping(value = "/blocktype/{blockType}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DataEnvelope>> getByBlockType(@PathVariable BlockTypeEnum blockType) throws IOException {
-
-        return ResponseEntity.ok(Collections.EMPTY_LIST);
+    @GetMapping(value = "/data/{blockType}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DataEnvelope>> getByBlockType(@PathVariable BlockTypeEnum blockType) {
+        log.info("Getting all data envelopes of type: {}", blockType);
+        try {
+            List<DataEnvelope> dataEnvelopes = server.getDataEnvelopesOfType(blockType);
+            return ResponseEntity.ok(dataEnvelopes);
+        } catch (Exception e) {
+            log.error("Exception while getting data envelopes", e);
+            return new ResponseEntity<List<DataEnvelope>>(Collections.emptyList(), HttpStatusCode.valueOf(500));
+        }
     }
 }

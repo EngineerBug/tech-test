@@ -1,4 +1,7 @@
 Start server:
+gradle bootrun
+
+Run tests:
 gradle build
 
 tear down server:
