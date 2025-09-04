@@ -18,6 +18,9 @@ import lombok.Setter;
 
 import java.time.Instant;
 
+/**
+ * This representation of data block headers directly maps onto how headers are stored in the database.
+ */
 @Entity
 @Table(
         name = "DATA_HEADER",

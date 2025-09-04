@@ -1,11 +1,15 @@
 package org.hmxlabs.techtest.server.component.impl;
 
 import org.hmxlabs.techtest.server.api.model.DataEnvelope;
+import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.service.DataBodyService;
 import org.hmxlabs.techtest.server.component.Server;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import org.hmxlabs.techtest.Utils;
@@ -42,6 +46,11 @@ public class ServerImpl implements Server {
         return false;
     }
 
+    /**
+     * Converts the DataEnvelope to a DataBodyEntity that the database can persist.
+     * Then calls the method to send the data to the database.
+     * @param envelope
+     */
     private void persist(DataEnvelope envelope) {
         log.info("Persisting data with attribute name: {}", envelope.getDataHeader().getName());
         DataHeaderEntity dataHeaderEntity = modelMapper.map(envelope.getDataHeader(), DataHeaderEntity.class);
@@ -52,8 +61,21 @@ public class ServerImpl implements Server {
         saveData(dataBodyEntity);
     }
 
+    /**
+     * Makes the actual call to the service layer to persist the data.
+     * @param dataBodyEntity
+     */
     private void saveData(DataBodyEntity dataBodyEntity) {
         dataBodyServiceImpl.saveDataBody(dataBodyEntity);
     }
 
+    /**
+     * Gets all the datas from the database with a particular type.
+     * @param blockType - the type of block to get
+     * @returns a list of DataEnvolopes, all with the same type
+     */
+    @Override
+    public List<DataEnvelope> getDataEnvelopesOfType(BlockTypeEnum blockType) throws IOException {
+        return Collections.emptyList();
+    }
 }

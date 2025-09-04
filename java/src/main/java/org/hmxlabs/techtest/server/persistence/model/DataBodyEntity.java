@@ -19,6 +19,9 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * This representation of data blocks directly maps onto how datas are stored in the database.
+ */
 @Entity
 @Table(name = "DATA_STORE")
 @Setter

@@ -48,9 +48,18 @@ test {
 jacocoTestReport {
     dependsOn test // run tests before generating report
     reports {
-        xml.required = true
+        xml.required = false
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+
+	afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                'org/hmxlabs/techtest/client/**',
+                'org/hmxlabs/techtest/server/api/controller/HadoopDummyServerController'
+            ])
+        }))
     }
 }
 

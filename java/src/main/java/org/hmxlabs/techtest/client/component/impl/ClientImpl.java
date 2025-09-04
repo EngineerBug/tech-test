@@ -26,6 +26,10 @@ public class ClientImpl implements Client {
     public static final UriTemplate URI_GETDATA = new UriTemplate("http://localhost:8090/dataserver/data/{blockType}");
     public static final UriTemplate URI_PATCHDATA = new UriTemplate("http://localhost:8090/dataserver/update/{name}/{newBlockType}");
 
+    /**
+     * A method that sends an HTTP request to the server to persist a data
+     * @param dataEnvelope - the data being persisted
+     */
     @Override
     public void pushData(DataEnvelope dataEnvelope) {
         log.debug("Pushing data {} to {}", dataEnvelope.getDataHeader().getName(), URI_PUSHDATA);
