@@ -1,6 +1,5 @@
-package org.hmxlabs.techtest.api.model;
+package org.hmxlabs.techtest.server.api.model;
 
-import org.hmxlabs.techtest.server.api.model.DataChecksum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

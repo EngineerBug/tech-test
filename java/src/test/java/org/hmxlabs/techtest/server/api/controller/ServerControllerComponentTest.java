@@ -1,7 +1,6 @@
-package org.hmxlabs.techtest.api.controller;
+package org.hmxlabs.techtest.server.api.controller;
 
 import org.hmxlabs.techtest.TestDataHelper;
-import org.hmxlabs.techtest.server.api.controller.ServerController;
 import org.hmxlabs.techtest.server.api.model.DataEnvelope;
 import org.hmxlabs.techtest.server.component.Server;
 import org.hmxlabs.techtest.server.exception.HadoopClientException;
