@@ -46,24 +46,19 @@ public class TechTestApplication {
 		log.info("Finished initial data push");
 	}
 
-	private void updateData() throws UnsupportedEncodingException {
-		boolean success = client.updateData(HEADER_NAME, BlockTypeEnum.BLOCKTYPEB.name());
-	}
-
-	private void queryData() {
-
-		List<DataEnvelope> data = client.getData(BlockTypeEnum.BLOCKTYPEA.name());
-	}
-
 	private void pushData() throws JsonProcessingException {
-
 		DataBody dataBody = new DataBody(DUMMY_DATA);
-
 		DataHeader dataHeader = new DataHeader(HEADER_NAME, BlockTypeEnum.BLOCKTYPEA);
-
 		DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody);
 
 		client.pushData(dataEnvelope);
 	}
 
+	private void updateData() throws UnsupportedEncodingException {
+		boolean success = client.updateData(HEADER_NAME, BlockTypeEnum.BLOCKTYPEB.name());
+	}
+
+	private void queryData() {
+		List<DataEnvelope> data = client.getData(BlockTypeEnum.BLOCKTYPEA.name());
+	}
 }
