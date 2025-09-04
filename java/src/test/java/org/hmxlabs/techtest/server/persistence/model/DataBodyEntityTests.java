@@ -10,6 +10,7 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hmxlabs.techtest.TestDataHelper.TEST_NAME;
 import static org.hmxlabs.techtest.TestDataHelper.createTestDataBodyEntity;
+import static org.hmxlabs.techtest.TestDataHelper.createTestDataHeaderEntity;
 
 @ExtendWith(MockitoExtension.class)
 public class DataBodyEntityTests {
@@ -32,18 +33,59 @@ public class DataBodyEntityTests {
     @Test
     public void checkTwoDataBodiesAreEqualAsExpected() {
 
-        DataHeaderEntity dataHeaderEntity1 = new DataHeaderEntity();
-        dataHeaderEntity1.setName(TEST_NAME);
-        dataHeaderEntity1.setBlocktype(BlockTypeEnum.BLOCKTYPEA);
-        dataHeaderEntity1.setCreatedTimestamp(Instant.now());
+        DataHeaderEntity dataHeaderEntity1 = createTestDataHeaderEntity(Instant.now());
         DataBodyEntity dataBodyEntity1 = createTestDataBodyEntity(dataHeaderEntity1);
 
-        DataHeaderEntity dataHeaderEntity2 = new DataHeaderEntity();
-        dataHeaderEntity2.setName(TEST_NAME);
-        dataHeaderEntity2.setBlocktype(BlockTypeEnum.BLOCKTYPEA);
-        dataHeaderEntity2.setCreatedTimestamp(Instant.now().plusSeconds(100L));
+        DataHeaderEntity dataHeaderEntity2 = createTestDataHeaderEntity(Instant.now());
         DataBodyEntity dataBodyEntity2 = createTestDataBodyEntity(dataHeaderEntity2);
 
         assertThat(dataBodyEntity1).isEqualTo(dataBodyEntity2);
+    }
+
+    @Test
+    public void checkTwoDataBodiesAreNotEqualWithHeaderNames() {
+
+        DataHeaderEntity differentHeader = createTestDataHeaderEntity(Instant.now());
+        differentHeader.setName("NOT_TEST_NAME");
+        DataBodyEntity dataBodyEntity1 = createTestDataBodyEntity(differentHeader);
+
+        DataHeaderEntity dataHeaderEntity2 = createTestDataHeaderEntity(Instant.now());
+        DataBodyEntity dataBodyEntity2 = createTestDataBodyEntity(dataHeaderEntity2);
+
+        assertThat(dataBodyEntity1).isNotEqualTo(dataBodyEntity2);
+    }
+
+    @Test
+    public void checkTwoDataBodiesAreNotEqualWithBodies() {
+
+        DataHeaderEntity header = createTestDataHeaderEntity(Instant.now());
+        DataBodyEntity dataBodyEntity1 = createTestDataBodyEntity(header);
+        dataBodyEntity1.setDataBody("SOME_DIFFERENT_DATA");
+
+        DataBodyEntity dataBodyEntity2 = createTestDataBodyEntity(header);
+
+        assertThat(dataBodyEntity1).isNotEqualTo(dataBodyEntity2);
+    }
+
+    @Test
+    public void checkTwoDataBodiesAreNotEqualWithHeaderTypes() {
+
+        DataHeaderEntity differentHeader = createTestDataHeaderEntity(Instant.now());
+        differentHeader.setBlocktype(BlockTypeEnum.BLOCKTYPEB);
+        DataBodyEntity dataBodyEntity1 = createTestDataBodyEntity(differentHeader);
+
+        DataHeaderEntity dataHeaderEntity2 = createTestDataHeaderEntity(Instant.now());
+        DataBodyEntity dataBodyEntity2 = createTestDataBodyEntity(dataHeaderEntity2);
+
+        assertThat(dataBodyEntity1).isNotEqualTo(dataBodyEntity2);
+    }
+
+    @Test
+    public void checkTwoDataBodiesAreNotEqualWithWithDifferentClass() {
+
+        DataHeaderEntity dataHeaderEntity = createTestDataHeaderEntity(Instant.now());
+        DataBodyEntity dataBodyEntity = createTestDataBodyEntity(dataHeaderEntity);
+
+        assertThat(dataBodyEntity).isNotEqualTo(new String("hello world"));
     }
 }

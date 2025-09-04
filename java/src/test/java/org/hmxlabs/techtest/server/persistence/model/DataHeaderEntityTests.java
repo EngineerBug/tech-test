@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 public class DataHeaderEntityTests {
 
-
     @Test
     public void assignDataHeaderEntityFieldsShouldWorkAsExpected() {
         Instant expectedTimestamp = Instant.now();
@@ -24,6 +23,4 @@ public class DataHeaderEntityTests {
         assertThat(dataHeaderEntity.getBlocktype()).isEqualTo(BlockTypeEnum.BLOCKTYPEA);
         assertThat(dataHeaderEntity.getCreatedTimestamp()).isEqualTo(expectedTimestamp);
     }
-
-
 }

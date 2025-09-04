@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 @ExtendWith(MockitoExtension.class)
 public class ServerControllerComponentTest {
 
+	public static final String URI_ISOK = "http://localhost:8090/dataserver/isok";
 	public static final String URI_PUSHDATA = "http://localhost:8090/dataserver/pushdata";
 	public static final UriTemplate URI_GETDATA = new UriTemplate("http://localhost:8090/dataserver/data/{blockType}");
 	public static final UriTemplate URI_PATCHDATA = new UriTemplate("http://localhost:8090/dataserver/update/{name}/{newBlockType}");
@@ -50,13 +52,21 @@ public class ServerControllerComponentTest {
 				.build();
 
 		testDataEnvelope = TestDataHelper.createTestDataEnvelopeApiObject();
-
-		when(serverMock.saveDataEnvelope(any(DataEnvelope.class))).thenReturn(true);
 	}
 
 	@Test
-	public void testPushDataPostCallWorksAsExpected() throws Exception {
+	public void testIsServerOk() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(get(URI_ISOK))
+            .andExpect(status().isOk())
+            .andReturn();
 
+		boolean checksumPass = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
+		assertThat(checksumPass).isTrue();
+	}
+
+	@Test
+	public void testPushDataPostCall_worksAsExpected() throws Exception {
+		when(serverMock.saveDataEnvelope(any(DataEnvelope.class))).thenReturn(true);
 		String testDataEnvelopeJson = objectMapper.writeValueAsString(testDataEnvelope);
 
 		MvcResult mvcResult = mockMvc.perform(post(URI_PUSHDATA)
@@ -67,5 +77,35 @@ public class ServerControllerComponentTest {
 
 		boolean checksumPass = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
 		assertThat(checksumPass).isTrue();
+	}
+
+	@Test
+	public void testPushDataPostCall_failsOnChecksumDifference() throws Exception {
+		when(serverMock.saveDataEnvelope(any(DataEnvelope.class))).thenReturn(false);
+		String testDataEnvelopeJson = objectMapper.writeValueAsString(testDataEnvelope);
+
+		MvcResult mvcResult = mockMvc.perform(post(URI_PUSHDATA)
+				.content(testDataEnvelopeJson)
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
+				.andExpect(status().is(400))
+				.andReturn();
+
+		boolean checksumPass = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
+		assertThat(checksumPass).isFalse();
+	}
+
+	@Test
+	public void testPushDataPostCall_throwsInternalServerError() throws Exception {
+		when(serverMock.saveDataEnvelope(any(DataEnvelope.class))).thenThrow(new IOException());
+		String testDataEnvelopeJson = objectMapper.writeValueAsString(testDataEnvelope);
+
+		MvcResult mvcResult = mockMvc.perform(post(URI_PUSHDATA)
+				.content(testDataEnvelopeJson)
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
+				.andExpect(status().is(500))
+				.andReturn();
+
+		boolean checksumPass = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
+		assertThat(checksumPass).isFalse();
 	}
 }

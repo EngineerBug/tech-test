@@ -1,11 +1,11 @@
-package org.hmxlabs.techtest.server.service;
+package org.hmxlabs.techtest.server.component.impl;
 
 import org.hmxlabs.techtest.server.api.model.DataEnvelope;
 import org.hmxlabs.techtest.server.component.Server;
-import org.hmxlabs.techtest.server.component.impl.ServerImpl;
 import org.hmxlabs.techtest.server.mapper.ServerMapperConfiguration;
 import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
+import org.hmxlabs.techtest.server.service.DataBodyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

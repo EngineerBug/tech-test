@@ -58,14 +58,20 @@ public class ServerController {
      * @throws NoSuchAlgorithmException
      */
     @PostMapping(value = "/pushdata", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) throws IOException, NoSuchAlgorithmException {
+    public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) {
         log.info("Data envelope received: {}", dataEnvelope.getDataHeader().getName());
-        boolean checksumPass = server.saveDataEnvelope(dataEnvelope);
+        try {
+            boolean checksumPass = server.saveDataEnvelope(dataEnvelope);
 
-        if (checksumPass) {
-            return ResponseEntity.ok(checksumPass);
+            if (checksumPass) {
+                return ResponseEntity.ok(checksumPass);
+            }
+            return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(400));
+        } catch (Exception e) {
+            log.error("Exception while persisting data envelope", e);
+            return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(500));
         }
-        return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(400));
+        
     }
 
     /**
