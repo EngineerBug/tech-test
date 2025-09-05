@@ -33,7 +33,6 @@ public class TechTestApplication {
 	private Client client;
 
 	public static void main(String[] args) {
-
 		SpringApplication.run(TechTestApplication.class, args);
 	}
 
@@ -41,9 +40,7 @@ public class TechTestApplication {
 	public void initiatePushDataFlow() throws JsonProcessingException, UnsupportedEncodingException {
 		log.info("Starting initial data push...");
 		pushData();
-
 		queryData();
-
 		updateData();
 		log.info("Finished initial data push");
 	}
@@ -60,9 +57,11 @@ public class TechTestApplication {
 
 	private void updateData() throws UnsupportedEncodingException {
 		boolean success = client.updateData(HEADER_NAME, BlockTypeEnum.BLOCKTYPEB.name());
+		log.info("Initial data update: {}", success);
 	}
 
 	private void queryData() {
 		List<DataEnvelope> data = client.getData(BlockTypeEnum.BLOCKTYPEA.name());
+		log.info("Initial data query found: {} rows.", data.size());
 	}
 }

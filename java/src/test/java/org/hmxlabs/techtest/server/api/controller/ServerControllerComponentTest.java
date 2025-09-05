@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.util.UriTemplate;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -28,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -39,7 +39,7 @@ public class ServerControllerComponentTest {
 	public static final String URI_ISOK = "http://localhost:8090/dataserver/isok";
 	public static final String URI_PUSHDATA = "http://localhost:8090/dataserver/pushdata";
 	public static final String URI_GETDATA = "http://localhost:8090/dataserver/data/{blockType}";
-	public static final UriTemplate URI_PATCHDATA = new UriTemplate("http://localhost:8090/dataserver/update/{name}/{newBlockType}");
+	public static final String URI_PATCHDATA = "http://localhost:8090/dataserver/update/{name}/{newBlockType}";
 
 	@Mock
 	private Server serverMock;
@@ -177,5 +177,51 @@ public class ServerControllerComponentTest {
 		List<DataEnvelope> dataEnvelopes = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<List<DataEnvelope>>() {});
 		assertThat(dataEnvelopes).isNotNull();
 		assertThat(dataEnvelopes).isEmpty();
+	}
+
+	@Test
+	public void testUpdateBlockType_success() throws Exception {
+		when(serverMock.updateBlockType(any(String.class), any(BlockTypeEnum.class))).thenReturn(true);
+
+		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
+				.andExpect(status().isOk())
+				.andReturn();
+
+		boolean didUpdate = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
+		assertThat(didUpdate).isTrue();
+	}
+
+	@Test
+	public void testUpdateBlockType_nonExistantBlock() throws Exception {
+		when(serverMock.updateBlockType(any(String.class), any(BlockTypeEnum.class))).thenReturn(false);
+
+		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
+				.andExpect(status().is(404))
+				.andReturn();
+
+		boolean didUpdate = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
+		assertThat(didUpdate).isFalse();
+	}
+	
+	@Test
+	public void testUpdateBlockType_invalidBlockType() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", "INVALID_BLOCK_TYPE"))
+				.andExpect(status().is(400))
+				.andReturn();
+
+		boolean didUpdate = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
+		assertThat(didUpdate).isFalse();
+	}
+
+	@Test
+	public void testUpdateBlockType_throwsInternalServerError() throws Exception {
+		when(serverMock.updateBlockType(any(String.class), any(BlockTypeEnum.class))).thenThrow(new IOException());
+
+		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
+				.andExpect(status().is(500))
+				.andReturn();
+
+		boolean didUpdate = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
+		assertThat(didUpdate).isFalse();
 	}
 }

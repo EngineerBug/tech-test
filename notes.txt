@@ -1,8 +1,11 @@
 Start server:
 gradle bootrun
 
+Build server:
+gradle build -x tests
+
 Run tests:
-gradle build
+gradle tests
 
 tear down server:
 netstat -ano | findstr :8090
