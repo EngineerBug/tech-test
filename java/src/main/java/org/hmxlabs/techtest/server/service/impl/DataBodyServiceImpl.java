@@ -23,7 +23,7 @@ public class DataBodyServiceImpl implements DataBodyService {
 
     @Override
     public List<DataBodyEntity> getDataByBlockType(BlockTypeEnum blockType) {
-        return null;
+        return dataStoreRepository.findByDataHeaderEntity_Blocktype(blockType);
     }
 
     @Override
