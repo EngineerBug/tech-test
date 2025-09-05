@@ -46,6 +46,9 @@ public class DataBodyEntity {
     @Column(name = "CREATED_TIMESTAMP")
     private Instant createdTimestamp;
 
+    @Column(name = "DATA_CHECKSUM")
+    private String dataCheckSum;
+
     @PrePersist
     public void setTimestamps() {
         if (createdTimestamp == null) {
@@ -64,7 +67,8 @@ public class DataBodyEntity {
         DataBodyEntity that = (DataBodyEntity) obj;
 
         return Objects.equals(this.dataHeaderEntity.getName(), that.dataHeaderEntity.getName()) &&
-           Objects.equals(this.dataHeaderEntity.getBlocktype(), that.dataHeaderEntity.getBlocktype()) &&
-           Objects.equals(this.dataBody, that.getDataBody());
+            Objects.equals(this.dataHeaderEntity.getBlocktype(), that.dataHeaderEntity.getBlocktype()) &&
+            Objects.equals(this.dataBody, that.getDataBody()) &&
+            Objects.equals(this.dataCheckSum, that.getDataCheckSum());
     } 
 }

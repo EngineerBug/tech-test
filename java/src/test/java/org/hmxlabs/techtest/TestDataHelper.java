@@ -15,7 +15,8 @@ public class TestDataHelper {
     public static final String TEST_NAME = "Test";
     public static final String TEST_NAME_EMPTY = "";
     public static final String DUMMY_DATA = "AKCp5fU4WNWKBVvhXsbNhqk33tawri9iJUkA5o4A6YqpwvAoYjajVw8xdEw6r9796h1wEp29D";
-    public static final DataChecksum CHECKSUM = new DataChecksum(Utils.hashUTF8ToMD5(DUMMY_DATA));
+    public static final String CHECKSUM_STRING = Utils.hashUTF8ToMD5(DUMMY_DATA);
+    public static final DataChecksum CHECKSUM = new DataChecksum(CHECKSUM_STRING);
 
     public static DataHeaderEntity createTestDataHeaderEntity(Instant expectedTimestamp) {
         DataHeaderEntity dataHeaderEntity = new DataHeaderEntity();
@@ -29,6 +30,7 @@ public class TestDataHelper {
         DataBodyEntity dataBodyEntity = new DataBodyEntity();
         dataBodyEntity.setDataHeaderEntity(dataHeaderEntity);
         dataBodyEntity.setDataBody(DUMMY_DATA);
+        dataBodyEntity.setDataCheckSum(CHECKSUM_STRING);
         return dataBodyEntity;
     }
 
@@ -43,7 +45,7 @@ public class TestDataHelper {
     public static DataEnvelope createFaultyTestDataEnvelopeApiObject() {
         DataBody dataBody = new DataBody(DUMMY_DATA);
         DataHeader dataHeader = new DataHeader(TEST_NAME, BlockTypeEnum.BLOCKTYPEA);
-        DataChecksum dataChecksum = new DataChecksum(Utils.hashUTF8ToMD5("SOME INCORRECT DATA"));
+        DataChecksum dataChecksum = new DataChecksum("SOME INCORRECT DATA");
 
         DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, dataChecksum);
         return dataEnvelope;

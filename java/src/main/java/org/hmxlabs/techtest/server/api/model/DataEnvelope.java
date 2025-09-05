@@ -1,5 +1,7 @@
 package org.hmxlabs.techtest.server.api.model;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.validation.Valid;
@@ -7,7 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 @JsonSerialize(as = DataEnvelope.class)
 @JsonDeserialize(as = DataEnvelope.class)
@@ -25,4 +26,17 @@ public class DataEnvelope {
 
     @NotNull
     private DataChecksum dataChecksum;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        DataEnvelope that = (DataEnvelope) obj;
+
+        return Objects.equals(this.dataHeader.getName(), that.dataHeader.getName()) &&
+           Objects.equals(this.dataHeader.getBlockType(), that.dataHeader.getBlockType()) &&
+           Objects.equals(this.dataBody.getDataBody(), that.getDataBody().getDataBody()) &&
+           Objects.equals(this.dataChecksum.getDataChecksum(), that.getDataChecksum().getDataChecksum());
+    } 
 }

@@ -1,14 +1,15 @@
 package org.hmxlabs.techtest.server.component.impl;
 
+import org.hmxlabs.techtest.server.api.model.DataBody;
+import org.hmxlabs.techtest.server.api.model.DataChecksum;
 import org.hmxlabs.techtest.server.api.model.DataEnvelope;
+import org.hmxlabs.techtest.server.api.model.DataHeader;
 import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.service.DataBodyService;
 import org.hmxlabs.techtest.server.component.Server;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,6 +58,7 @@ public class ServerImpl implements Server {
 
         DataBodyEntity dataBodyEntity = modelMapper.map(envelope.getDataBody(), DataBodyEntity.class);
         dataBodyEntity.setDataHeaderEntity(dataHeaderEntity);
+        dataBodyEntity.setDataCheckSum(envelope.getDataChecksum().getDataChecksum());
 
         saveData(dataBodyEntity);
     }
@@ -75,7 +77,24 @@ public class ServerImpl implements Server {
      * @returns a list of DataEnvolopes, all with the same type
      */
     @Override
-    public List<DataEnvelope> getDataEnvelopesOfType(BlockTypeEnum blockType) throws IOException {
-        return Collections.emptyList();
+    public List<DataEnvelope> getDataEnvelopesOfType(BlockTypeEnum blockType) {
+        List<DataBodyEntity> dataBodyEntities = dataBodyServiceImpl.getDataByBlockType(blockType);
+        log.info("Retrieved list of {} DataEnvelopes of type {}", dataBodyEntities.size(), blockType);
+        return mapDataBodyEntitiesToDataEnvelopes(dataBodyEntities);
+    }
+
+    /**
+     * Maps a list of DataBodyEntity objects to a list of DataEnvelope objects.
+     * @param dataBodyEntities
+     * @return dataEnvelopes
+     */
+    private List<DataEnvelope> mapDataBodyEntitiesToDataEnvelopes(List<DataBodyEntity> dataBodyEntities) {
+        return dataBodyEntities.stream()
+            .map(data -> new DataEnvelope(
+                    new DataHeader(data.getDataHeaderEntity().getName(), data.getDataHeaderEntity().getBlocktype()),
+                    new DataBody(data.getDataBody()), 
+                    new DataChecksum(data.getDataCheckSum()))
+                )
+            .toList();
     }
 }
