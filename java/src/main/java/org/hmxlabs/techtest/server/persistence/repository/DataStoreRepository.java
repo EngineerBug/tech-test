@@ -1,6 +1,7 @@
 package org.hmxlabs.techtest.server.persistence.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
@@ -16,4 +17,5 @@ public interface DataStoreRepository extends JpaRepository<DataBodyEntity, Long>
      * @return a list of all DataBlockEntities with the provided type.
      */
     List<DataBodyEntity> findByDataHeaderEntity_Blocktype(BlockTypeEnum type);
+    Optional<DataBodyEntity> findByDataHeaderEntity_Name(String blockName);
 }

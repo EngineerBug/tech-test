@@ -10,4 +10,5 @@ import java.util.List;
 public interface Server {
     boolean saveDataEnvelope(DataEnvelope envelope) throws IOException, NoSuchAlgorithmException;
     List<DataEnvelope> getDataEnvelopesOfType(BlockTypeEnum blockType) throws IOException;
+    boolean updateBlockType(String name, BlockTypeEnum newBlockType) throws IOException;
 }

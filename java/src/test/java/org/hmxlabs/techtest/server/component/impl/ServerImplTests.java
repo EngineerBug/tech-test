@@ -7,6 +7,7 @@ import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.service.DataBodyService;
+import org.hmxlabs.techtest.server.service.DataHeaderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hmxlabs.techtest.TestDataHelper.createTestDataEnvelopeApiObject;
@@ -29,10 +31,13 @@ import static org.mockito.Mockito.when;
 import static org.hmxlabs.techtest.TestDataHelper.createFaultyTestDataEnvelopeApiObject;
 
 @ExtendWith(MockitoExtension.class)
-public class ServerServiceTests {
+public class ServerImplTests {
 
     @Mock
     private DataBodyService dataBodyServiceImplMock;
+
+    @Mock
+    private DataHeaderService dataHeaderServiceImplMock;
 
     private ModelMapper modelMapper;
 
@@ -51,7 +56,7 @@ public class ServerServiceTests {
         expectedDataBodyEntity.setDataHeaderEntity(modelMapper.map(testDataEnvelope.getDataHeader(), DataHeaderEntity.class));
         expectedDataBodyEntity.setDataCheckSum(testDataEnvelope.getDataChecksum().getDataChecksum());
 
-        server = new ServerImpl(dataBodyServiceImplMock, modelMapper);
+        server = new ServerImpl(dataBodyServiceImplMock, dataHeaderServiceImplMock, modelMapper);
     }
 
     @Test
@@ -100,5 +105,25 @@ public class ServerServiceTests {
 		assertThat(dataEnvelopes).isNotNull();
     	assertThat(dataEnvelopes).hasSize(5);
 		assertThat(dataEnvelopes.get(0)).isEqualTo(testDataEnvelope);
+	}
+
+    @Test
+	public void testUpdateBlockType_success() throws Exception {
+		when(dataHeaderServiceImplMock.getDataHeaderByName(any(String.class))).thenReturn(Optional.of(expectedDataBodyEntity.getDataHeaderEntity()));
+
+        boolean didUpdate = server.updateBlockType(expectedDataBodyEntity.getDataHeaderEntity().getName(), BlockTypeEnum.BLOCKTYPEB);
+
+    	assertThat(didUpdate).isTrue();
+        verify(dataHeaderServiceImplMock, times(1)).saveHeader(eq(expectedDataBodyEntity.getDataHeaderEntity()));
+	}
+
+    @Test
+	public void testUpdateBlockType_nonExistantName() throws Exception {
+		when(dataHeaderServiceImplMock.getDataHeaderByName(any(String.class))).thenReturn(Optional.empty());
+
+        boolean didUpdate = server.updateBlockType(expectedDataBodyEntity.getDataHeaderEntity().getName(), BlockTypeEnum.BLOCKTYPEB);
+
+    	assertThat(didUpdate).isFalse();
+        verify(dataHeaderServiceImplMock, times(0)).saveHeader(eq(expectedDataBodyEntity.getDataHeaderEntity()));
 	}
 }

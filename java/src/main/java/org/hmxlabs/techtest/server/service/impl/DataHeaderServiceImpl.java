@@ -1,6 +1,9 @@
 package org.hmxlabs.techtest.server.service.impl;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
+
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.persistence.repository.DataHeaderRepository;
 import org.springframework.stereotype.Service;
@@ -14,5 +17,10 @@ public class DataHeaderServiceImpl implements org.hmxlabs.techtest.server.servic
     @Override
     public void saveHeader(DataHeaderEntity entity) {
         dataHeaderRepository.save(entity);
+    }
+
+    @Override
+    public Optional<DataHeaderEntity> getDataHeaderByName(String name) {
+        return dataHeaderRepository.findByName(name);
     }
 }

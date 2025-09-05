@@ -8,10 +8,13 @@ import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.service.DataBodyService;
+import org.hmxlabs.techtest.server.service.DataHeaderService;
 import org.hmxlabs.techtest.server.component.Server;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.hmxlabs.techtest.Utils;
 
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 public class ServerImpl implements Server {
 
     private final DataBodyService dataBodyServiceImpl;
+    private final DataHeaderService dataHeaderServiceImpl;
     private final ModelMapper modelMapper;
 
     /**
@@ -90,11 +94,33 @@ public class ServerImpl implements Server {
      */
     private List<DataEnvelope> mapDataBodyEntitiesToDataEnvelopes(List<DataBodyEntity> dataBodyEntities) {
         return dataBodyEntities.stream()
-            .map(data -> new DataEnvelope(
-                    new DataHeader(data.getDataHeaderEntity().getName(), data.getDataHeaderEntity().getBlocktype()),
-                    new DataBody(data.getDataBody()), 
-                    new DataChecksum(data.getDataCheckSum()))
-                )
+            .map(data -> mapDataBodyEntityToDataEnvelope(data))
             .toList();
+    }
+
+    private DataEnvelope mapDataBodyEntityToDataEnvelope(DataBodyEntity dataBodyEntity) {
+        return new DataEnvelope(
+            new DataHeader(dataBodyEntity.getDataHeaderEntity().getName(), dataBodyEntity.getDataHeaderEntity().getBlocktype()),
+            new DataBody(dataBodyEntity.getDataBody()), 
+            new DataChecksum(dataBodyEntity.getDataCheckSum()));
+    }
+
+    @Override
+    public boolean updateBlockType(String name, BlockTypeEnum newBlockType) throws IOException {
+        Optional<DataHeaderEntity> dataHeaderOptional = dataHeaderServiceImpl.getDataHeaderByName(name);
+        return verifyHeader(dataHeaderOptional, newBlockType);
+    }
+
+    private boolean verifyHeader(Optional<DataHeaderEntity> dataHeaderOptional, BlockTypeEnum newBlockType) {
+        if (dataHeaderOptional.isEmpty()) {
+            return false;
+        }
+        updateAndSaveHeader(dataHeaderOptional.get(), newBlockType);
+        return true;
+    }
+
+    private void updateAndSaveHeader(DataHeaderEntity dataHeaderEntity, BlockTypeEnum newBlockType) {
+        dataHeaderEntity.setBlocktype(newBlockType);
+        dataHeaderServiceImpl.saveHeader(dataHeaderEntity);
     }
 }
