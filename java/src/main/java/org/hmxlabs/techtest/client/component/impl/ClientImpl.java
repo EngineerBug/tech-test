@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriTemplate;
 import org.springframework.http.MediaType;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,8 +23,8 @@ public class ClientImpl implements Client {
     private final WebClient webClient;
 
     public static final String URI_PUSHDATA = "http://localhost:8090/dataserver/pushdata";
-    public static final UriTemplate URI_GETDATA = new UriTemplate("http://localhost:8090/dataserver/data/{blockType}");
-    public static final UriTemplate URI_PATCHDATA = new UriTemplate("http://localhost:8090/dataserver/update/{name}/{newBlockType}");
+    public static final String URI_GETDATA = "http://localhost:8090/dataserver/data/{blockType}";
+    public static final String URI_PATCHDATA = "http://localhost:8090/dataserver/update/{name}/{newBlockType}";
 
     /**
      * A method that sends an HTTP request to the server to persist a data
@@ -52,14 +52,32 @@ public class ClientImpl implements Client {
 
         } catch (Exception e) {
             log.error("Exception: failed to push data {} to {}", dataEnvelope.getDataHeader().getName(), URI_PUSHDATA);
-            throw e;
         }
     }
 
     @Override
     public List<DataEnvelope> getData(String blockType) {
         log.info("Query for data with header block type {}", blockType);
-        return null;
+        try {
+            List<DataEnvelope> dataEnvelopes = webClient
+                .get()
+                .uri(URI_GETDATA, blockType)
+                .retrieve()
+                .bodyToFlux(DataEnvelope.class)
+                .collectList()
+                .block();
+
+            if (dataEnvelopes.isEmpty()) {
+                log.warn("No datas of type {} were found at {}.", blockType, URI_GETDATA);
+            } else {
+                log.info("Successfully found datas of type {}", blockType, URI_GETDATA);
+            }
+            return dataEnvelopes;
+
+        } catch (Exception e) {
+            log.error("Exception: failed to get datas of type {} from {}", blockType, URI_GETDATA);
+            return Collections.emptyList();
+        }
     }
 
     @Override
