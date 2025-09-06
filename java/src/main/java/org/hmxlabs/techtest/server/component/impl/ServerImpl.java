@@ -11,7 +11,6 @@ import org.hmxlabs.techtest.server.service.DataBodyService;
 import org.hmxlabs.techtest.server.service.DataHeaderService;
 import org.hmxlabs.techtest.server.component.Server;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,10 +21,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ServerImpl implements Server {
 
     private final DataBodyService dataBodyServiceImpl;
@@ -106,21 +107,24 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public boolean updateBlockType(String name, BlockTypeEnum newBlockType) throws IOException {
+    public boolean updateBlockType(String name, BlockTypeEnum newBlockType) {
         Optional<DataHeaderEntity> dataHeaderOptional = dataHeaderServiceImpl.getDataHeaderByName(name);
-        return verifyHeader(dataHeaderOptional, newBlockType);
-    }
-
-    private boolean verifyHeader(Optional<DataHeaderEntity> dataHeaderOptional, BlockTypeEnum newBlockType) {
-        if (dataHeaderOptional.isEmpty()) {
+        if (dataHeaderOptional.isPresent()) {
+            dataHeaderOptional.get().setBlocktype(newBlockType);
+            dataHeaderServiceImpl.saveHeader(dataHeaderOptional.get());
+            return checkUpdatePersisted(name, newBlockType);
+        } else {
             return false;
         }
-        updateAndSaveHeader(dataHeaderOptional.get(), newBlockType);
-        return true;
     }
 
-    private void updateAndSaveHeader(DataHeaderEntity dataHeaderEntity, BlockTypeEnum newBlockType) {
-        dataHeaderEntity.setBlocktype(newBlockType);
-        dataHeaderServiceImpl.saveHeader(dataHeaderEntity);
+    private boolean checkUpdatePersisted(String name, BlockTypeEnum newBlockType) {
+        Optional<DataHeaderEntity> dataHeaderOptional = dataHeaderServiceImpl.getDataHeaderByName(name);
+        if (dataHeaderOptional.isPresent()) {
+            if (dataHeaderOptional.get().getBlocktype().equals(newBlockType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

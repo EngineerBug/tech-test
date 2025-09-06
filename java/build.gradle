@@ -39,8 +39,8 @@ test {
         showStandardStreams = true
     }
     systemProperty 'spring.output.ansi.enabled', 'always'
-    systemProperty 'logging.level.org.springframework', 'INFO'
-    systemProperty 'logging.level.your.package.name', 'INFO'
+    systemProperty 'logging.level.org.springframework', 'DEBUG'
+    systemProperty 'logging.level.your.package.name', 'DEBUG'
 
     // create coverage report
 	finalizedBy jacocoTestReport

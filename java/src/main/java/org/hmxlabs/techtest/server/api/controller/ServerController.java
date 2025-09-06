@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,10 +40,9 @@ public class ServerController {
     /**
      * A simple endpoint that will always return true to confirm the server is working as expected.
      * @return Boolean - true
-     * @throws IOException
      */
     @GetMapping(value = "/isok", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> isServerOk() throws IOException {
+    public ResponseEntity<Boolean> isServerOk() {
         log.info("Someone checked if the server is ok");
         return ResponseEntity.ok(true);
     }
@@ -55,21 +53,19 @@ public class ServerController {
      * 
      * @param dataEnvelope
      * @return Boolean - whether the object was successfully persisted
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
      */
     @PostMapping(value = "/pushdata", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) {
         log.info("Data envelope received: {}", dataEnvelope.getDataHeader().getName());
         try {
             boolean checksumPass = server.saveDataEnvelope(dataEnvelope);
-
+            
             if (checksumPass) {
                 return ResponseEntity.ok(checksumPass);
             }
             return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(400));
-        } catch (Exception e) {
-            log.error("Exception while persisting data envelope", e);
+
+        } catch (IOException e) {
             return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(500));
         }
     }
@@ -78,35 +74,34 @@ public class ServerController {
      * Spring automatically handles not being able to resolve blockType to a BlockTypeEnum
      * @param blocktype - 
      * @return 
-     * @throws IOException
      */
     @GetMapping(value = "/data/{blockType}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DataEnvelope>> getByBlockType(@PathVariable BlockTypeEnum blockType) {
+    public ResponseEntity<List<DataEnvelope>> getByBlockType(@PathVariable("blockType") BlockTypeEnum blockType) {
         log.info("Getting all data envelopes of type: {}", blockType);
         try {
             List<DataEnvelope> dataEnvelopes = server.getDataEnvelopesOfType(blockType);
             return ResponseEntity.ok(dataEnvelopes);
-        } catch (Exception e) {
-            log.error("Exception while getting data envelopes", e);
+
+        } catch (IOException e) {
             return new ResponseEntity<List<DataEnvelope>>(Collections.emptyList(), HttpStatusCode.valueOf(500));
         }
     }
 
     @PatchMapping(value = "/update/{name}/{newBlockType}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> updateBlockType(@PathVariable String name, @PathVariable BlockTypeEnum newBlockType) {
+    public ResponseEntity<Boolean> updateBlockType(@PathVariable("name") String name, @PathVariable("newBlockType") BlockTypeEnum newBlockType) {
         log.info("Updating type of datablock {} to: {}", name, newBlockType);
         try {
             boolean isUpdated = server.updateBlockType(name, newBlockType);
 
             if (isUpdated) {
-                log.info("Successfully...", name, newBlockType);
+                log.info("Successfully updated block {} to blocktype {}.", name, newBlockType);
                 return ResponseEntity.ok(true);
             }
 
-            log.warn("Failed to...");
-            return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(404));
-        } catch (Exception e) {
-            log.error("Exception while updating blocktype", e);
+            log.warn("Failed to updated block {} to blocktype {}.", name, newBlockType);
+            return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(400));
+
+        } catch (IOException e) {
             return new ResponseEntity<Boolean>(false, HttpStatusCode.valueOf(500));
         }
     }

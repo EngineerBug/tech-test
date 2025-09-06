@@ -80,6 +80,23 @@ public class ClientImpl implements Client {
     @Override
     public boolean updateData(String blockName, String newBlockType) {
         log.info("Updating blocktype to {} for block with name {}", newBlockType, blockName);
-        return true;
+        try {
+            Boolean response = webClient
+                .patch()
+                .uri(Constant.URI_PATCHDATA, blockName, newBlockType)
+                .retrieve()
+                .bodyToMono(Boolean.class)
+                .block();
+
+            if (response) {
+                log.info("Successfully updated block {} to type {}", blockName, newBlockType);
+            } else {
+                log.warn("Failed to update block {} to type ", blockName, newBlockType);
+            }
+            return response;
+        } catch (Exception e) {
+            log.error("Exception: failed to update block {} to type {}", blockName, newBlockType);
+            return false;
+        }
     }
 }

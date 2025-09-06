@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +32,11 @@ import org.hmxlabs.techtest.server.api.model.DataEnvelope;
 import org.hmxlabs.techtest.server.exception.HadoopClientException;
 import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 
+/**
+ * Source tutorial: https://spring.io/guides/gs/testing-web
+ */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Transactional
-@Rollback
 public class ServerControllerComponentE2E {
 
     @LocalServerPort
@@ -130,7 +131,7 @@ public class ServerControllerComponentE2E {
 		assertThat(patchPassed).isTrue();
 
         // Then
-        MvcResult checkResult = mockMvc.perform(get(Constant.URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
+        MvcResult checkResult = mockMvc.perform(get(Constant.URI_GETDATA, BlockTypeEnum.BLOCKTYPEB))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -138,6 +139,6 @@ public class ServerControllerComponentE2E {
 
 		assertThat(dataEnvelopes).isNotNull();
     	assertThat(dataEnvelopes).isNotEmpty();
-		assertThat(dataEnvelopes.get(0)).isEqualTo(dataEnvelope);
+		assertThat(dataEnvelopes.get(0)).isEqualTo(TestDataHelper.createTestDataEnvelopeWithTypeB());
     }
 }
