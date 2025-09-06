@@ -40,8 +40,11 @@ public class TechTestApplication {
 	public void initiatePushDataFlow() throws JsonProcessingException, UnsupportedEncodingException {
 		log.info("Starting initial data push...");
 		pushData();
-		queryData();
+		queryData(BlockTypeEnum.BLOCKTYPEA);
+		queryData(BlockTypeEnum.BLOCKTYPEB);
 		updateData();
+		queryData(BlockTypeEnum.BLOCKTYPEA);
+		queryData(BlockTypeEnum.BLOCKTYPEB);
 		log.info("Finished initial data push");
 	}
 
@@ -57,11 +60,11 @@ public class TechTestApplication {
 
 	private void updateData() throws UnsupportedEncodingException {
 		boolean success = client.updateData(HEADER_NAME, BlockTypeEnum.BLOCKTYPEB.name());
-		log.info("Initial data update: {}", success);
+		log.info("Data update: {}", success);
 	}
 
-	private void queryData() {
-		List<DataEnvelope> data = client.getData(BlockTypeEnum.BLOCKTYPEA.name());
-		log.info("Initial data query found: {} rows.", data.size());
+	private void queryData(BlockTypeEnum blockType) {
+		List<DataEnvelope> data = client.getData(blockType.name());
+		log.info("Data query found: {} rows with blockType {}", data.size(), blockType);
 	}
 }

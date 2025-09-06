@@ -5,6 +5,7 @@ import org.hmxlabs.techtest.server.api.model.DataEnvelope;
 import org.hmxlabs.techtest.server.component.Server;
 import org.hmxlabs.techtest.server.exception.HadoopClientException;
 import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
+import org.hmxlabs.techtest.Constant;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,11 +37,6 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 @ExtendWith(MockitoExtension.class)
 public class ServerControllerComponentTest {
 
-	public static final String URI_ISOK = "http://localhost:8090/dataserver/isok";
-	public static final String URI_PUSHDATA = "http://localhost:8090/dataserver/pushdata";
-	public static final String URI_GETDATA = "http://localhost:8090/dataserver/data/{blockType}";
-	public static final String URI_PATCHDATA = "http://localhost:8090/dataserver/update/{name}/{newBlockType}";
-
 	@Mock
 	private Server serverMock;
 
@@ -62,7 +58,7 @@ public class ServerControllerComponentTest {
 
 	@Test
 	public void testIsServerOk() throws Exception {
-		MvcResult mvcResult = mockMvc.perform(get(URI_ISOK))
+		MvcResult mvcResult = mockMvc.perform(get(Constant.URI_ISOK))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -75,7 +71,7 @@ public class ServerControllerComponentTest {
 		when(serverMock.saveDataEnvelope(any(DataEnvelope.class))).thenReturn(true);
 		String testDataEnvelopeJson = objectMapper.writeValueAsString(testDataEnvelope);
 
-		MvcResult mvcResult = mockMvc.perform(post(URI_PUSHDATA)
+		MvcResult mvcResult = mockMvc.perform(post(Constant.URI_PUSHDATA)
 				.content(testDataEnvelopeJson)
 				.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk())
@@ -90,7 +86,7 @@ public class ServerControllerComponentTest {
 		when(serverMock.saveDataEnvelope(any(DataEnvelope.class))).thenReturn(false);
 		String testDataEnvelopeJson = objectMapper.writeValueAsString(testDataEnvelope);
 
-		MvcResult mvcResult = mockMvc.perform(post(URI_PUSHDATA)
+		MvcResult mvcResult = mockMvc.perform(post(Constant.URI_PUSHDATA)
 				.content(testDataEnvelopeJson)
 				.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(400))
@@ -105,7 +101,7 @@ public class ServerControllerComponentTest {
 		when(serverMock.saveDataEnvelope(any(DataEnvelope.class))).thenThrow(new IOException());
 		String testDataEnvelopeJson = objectMapper.writeValueAsString(testDataEnvelope);
 
-		MvcResult mvcResult = mockMvc.perform(post(URI_PUSHDATA)
+		MvcResult mvcResult = mockMvc.perform(post(Constant.URI_PUSHDATA)
 				.content(testDataEnvelopeJson)
 				.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().is(500))
@@ -119,7 +115,7 @@ public class ServerControllerComponentTest {
 	public void testGetAllDatasByType_successEmpty() throws Exception {
 		when(serverMock.getDataEnvelopesOfType(any(BlockTypeEnum.class))).thenReturn(Collections.emptyList());
 
-		MvcResult mvcResult = mockMvc.perform(get(URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
+		MvcResult mvcResult = mockMvc.perform(get(Constant.URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -133,7 +129,7 @@ public class ServerControllerComponentTest {
 	public void testGetAllDatasByType_successSingleton() throws Exception {
 		when(serverMock.getDataEnvelopesOfType(any(BlockTypeEnum.class))).thenReturn(Collections.singletonList(testDataEnvelope));
 
-		MvcResult mvcResult = mockMvc.perform(get(URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
+		MvcResult mvcResult = mockMvc.perform(get(Constant.URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -148,7 +144,7 @@ public class ServerControllerComponentTest {
 	public void testGetAllDatasByType_successMultiple() throws Exception {
 		when(serverMock.getDataEnvelopesOfType(any(BlockTypeEnum.class))).thenReturn(Collections.nCopies(5, testDataEnvelope));
 
-		MvcResult mvcResult = mockMvc.perform(get(URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
+		MvcResult mvcResult = mockMvc.perform(get(Constant.URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -161,7 +157,7 @@ public class ServerControllerComponentTest {
 
 	@Test
 	public void testGetAllDatasByType_invalidBlockType() throws Exception {
-		mockMvc.perform(get(URI_GETDATA, "INVALID"))
+		mockMvc.perform(get(Constant.URI_GETDATA, "INVALID"))
 				.andExpect(status().is(400))
 				.andExpect(content().string(""));
 	}
@@ -170,7 +166,7 @@ public class ServerControllerComponentTest {
 	public void testGetAllDatasByType_throwsInternalServerError() throws Exception {
 		when(serverMock.getDataEnvelopesOfType(any(BlockTypeEnum.class))).thenThrow(new IOException());
 
-		MvcResult mvcResult = mockMvc.perform(get(URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
+		MvcResult mvcResult = mockMvc.perform(get(Constant.URI_GETDATA, BlockTypeEnum.BLOCKTYPEA))
 				.andExpect(status().is(500))
 				.andReturn();
 
@@ -183,7 +179,7 @@ public class ServerControllerComponentTest {
 	public void testUpdateBlockType_success() throws Exception {
 		when(serverMock.updateBlockType(any(String.class), any(BlockTypeEnum.class))).thenReturn(true);
 
-		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
+		MvcResult mvcResult = mockMvc.perform(patch(Constant.URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -195,7 +191,7 @@ public class ServerControllerComponentTest {
 	public void testUpdateBlockType_nonExistantBlock() throws Exception {
 		when(serverMock.updateBlockType(any(String.class), any(BlockTypeEnum.class))).thenReturn(false);
 
-		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
+		MvcResult mvcResult = mockMvc.perform(patch(Constant.URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
 				.andExpect(status().is(404))
 				.andReturn();
 
@@ -205,7 +201,7 @@ public class ServerControllerComponentTest {
 	
 	@Test
 	public void testUpdateBlockType_invalidBlockType() throws Exception {
-		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", "INVALID_BLOCK_TYPE"))
+		MvcResult mvcResult = mockMvc.perform(patch(Constant.URI_PATCHDATA, "NAME", "INVALID_BLOCK_TYPE"))
 				.andExpect(status().is(400))
 				.andReturn();
 
@@ -217,7 +213,7 @@ public class ServerControllerComponentTest {
 	public void testUpdateBlockType_throwsInternalServerError() throws Exception {
 		when(serverMock.updateBlockType(any(String.class), any(BlockTypeEnum.class))).thenThrow(new IOException());
 
-		MvcResult mvcResult = mockMvc.perform(patch(URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
+		MvcResult mvcResult = mockMvc.perform(patch(Constant.URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
 				.andExpect(status().is(500))
 				.andReturn();
 

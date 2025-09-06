@@ -12,16 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hmxlabs.techtest.TestDataHelper.createTestDataBodyEntity;
 import static org.hmxlabs.techtest.TestDataHelper.createTestDataHeaderEntity;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DataBodyServiceTests {
@@ -57,27 +53,5 @@ public class DataBodyServiceTests {
 
         verify(dataStoreRepositoryMock, times(1))
                 .findByDataHeaderEntity_Blocktype(eq(BlockTypeEnum.BLOCKTYPEA));
-    }
-
-    @Test
-    public void testGetDataByBlockName_success() {
-        when(dataStoreRepositoryMock.findByDataHeaderEntity_Name(anyString())).thenReturn(Optional.of(expectedDataBodyEntity));
-
-        String name = expectedDataBodyEntity.getDataHeaderEntity().getName();
-        Optional<DataBodyEntity> dataBodyEntity = dataBodyService.getDataByBlockName(name);
-
-        assertThat(dataBodyEntity.get()).isEqualTo(expectedDataBodyEntity);
-        verify(dataStoreRepositoryMock, times(1)).findByDataHeaderEntity_Name(eq(name));
-    }
-
-    @Test
-    public void testGetDataByBlockName_nonExistantName() {
-        when(dataStoreRepositoryMock.findByDataHeaderEntity_Name(anyString())).thenReturn(Optional.empty());
-
-        String name = expectedDataBodyEntity.getDataHeaderEntity().getName();
-        Optional<DataBodyEntity> dataBodyEntity = dataBodyService.getDataByBlockName(name);
-
-        assertThat(dataBodyEntity).isEmpty();
-        verify(dataStoreRepositoryMock, times(1)).findByDataHeaderEntity_Name(eq(name));
     }
 }

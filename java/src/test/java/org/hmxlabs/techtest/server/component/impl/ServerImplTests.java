@@ -15,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +58,7 @@ public class ServerImplTests {
     }
 
     @Test
-    public void shouldSaveDataEnvelopeAsExpected() throws NoSuchAlgorithmException, IOException {
+    public void shouldSaveDataEnvelopeAsExpected() throws Exception {
         boolean success = server.saveDataEnvelope(testDataEnvelope);
 
         assertThat(success).isTrue();
@@ -68,7 +66,7 @@ public class ServerImplTests {
     }
 
     @Test
-    public void shouldNotSaveDataWhenChecksumsDoNotMatch() throws NoSuchAlgorithmException, IOException {
+    public void shouldNotSaveDataWhenChecksumsDoNotMatch() throws Exception {
         DataEnvelope faultyDataEnvelope = createFaultyTestDataEnvelopeApiObject();
         boolean success = server.saveDataEnvelope(faultyDataEnvelope);
 
