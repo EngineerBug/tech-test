@@ -9,7 +9,9 @@ import org.hmxlabs.techtest.server.persistence.model.DataBodyEntity;
 import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.service.DataBodyService;
 import org.hmxlabs.techtest.server.service.DataHeaderService;
+import org.hmxlabs.techtest.server.service.HadoopService;
 import org.hmxlabs.techtest.server.component.Server;
+import org.hmxlabs.techtest.server.exception.HadoopClientException;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,10 +32,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class ServerImpl implements Server {
 
     private final DataBodyService dataBodyServiceImpl;
+
     private final DataHeaderService dataHeaderServiceImpl;
+
     private final ModelMapper modelMapper;
 
+    private final HadoopService hadoopService;
+
     /**
+     * Exercise 2, 5
+     * 
+     * 
      * @param envelope
      * @return true if there is a match with the client provided checksum.
      */
@@ -45,6 +54,9 @@ public class ServerImpl implements Server {
         if (Objects.equals(serverChecksumString, envelope.getDataChecksum().getDataChecksum())) {
             persist(envelope);
             log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
+
+            // Start async datalake persistence
+
             return true;
         }
         log.warn("Data NOT persisted due to mismatched checksums, data name: {}", envelope.getDataHeader().getName());
@@ -53,6 +65,7 @@ public class ServerImpl implements Server {
     }
 
     /**
+     * Exercise 2, 5
      * Converts the DataEnvelope to a DataBodyEntity that the database can persist.
      * Then calls the method to send the data to the database.
      * @param envelope
@@ -65,18 +78,34 @@ public class ServerImpl implements Server {
         dataBodyEntity.setDataHeaderEntity(dataHeaderEntity);
         dataBodyEntity.setDataCheckSum(envelope.getDataChecksum().getDataChecksum());
 
-        saveData(dataBodyEntity);
+        saveDataToDatabase(dataBodyEntity);
+        try {
+            saveDataToLake(dataBodyEntity);
+        } catch (HadoopClientException e) {
+            log.error("The external hadoop service failed");
+        }
     }
 
     /**
+     * Exercise 2
      * Makes the actual call to the service layer to persist the data.
      * @param dataBodyEntity
      */
-    private void saveData(DataBodyEntity dataBodyEntity) {
+    private void saveDataToDatabase(DataBodyEntity dataBodyEntity) {
         dataBodyServiceImpl.saveDataBody(dataBodyEntity);
     }
 
     /**
+     * Exercise 5
+     * @param dataBodyEntity
+     * @throws HadoopClientException
+     */
+    private void saveDataToLake(DataBodyEntity dataBodyEntity) throws HadoopClientException {
+        hadoopService.saveBlockToHadoop(dataBodyEntity);
+    }
+
+    /**
+     * Exercise 3
      * Gets all the datas from the database with a particular type.
      * @param blockType - the type of block to get
      * @returns a list of DataEnvolopes, all with the same type
@@ -89,6 +118,8 @@ public class ServerImpl implements Server {
     }
 
     /**
+     * Exercise 3
+     * 
      * Maps a list of DataBodyEntity objects to a list of DataEnvelope objects.
      * @param dataBodyEntities
      * @return dataEnvelopes
@@ -99,6 +130,12 @@ public class ServerImpl implements Server {
             .toList();
     }
 
+    /**
+     * Exercise 3
+     * 
+     * @param dataBodyEntity
+     * @return
+     */
     private DataEnvelope mapDataBodyEntityToDataEnvelope(DataBodyEntity dataBodyEntity) {
         return new DataEnvelope(
             new DataHeader(dataBodyEntity.getDataHeaderEntity().getName(), dataBodyEntity.getDataHeaderEntity().getBlocktype()),
@@ -106,6 +143,10 @@ public class ServerImpl implements Server {
             new DataChecksum(dataBodyEntity.getDataCheckSum()));
     }
 
+    /**
+     * Exercise 4
+     * 
+     */
     @Override
     public boolean updateBlockType(String name, BlockTypeEnum newBlockType) {
         Optional<DataHeaderEntity> dataHeaderOptional = dataHeaderServiceImpl.getDataHeaderByName(name);
@@ -117,7 +158,11 @@ public class ServerImpl implements Server {
             return false;
         }
     }
-
+    
+    /**
+     * Exercise 4
+     * 
+     */
     private boolean checkUpdatePersisted(String name, BlockTypeEnum newBlockType) {
         Optional<DataHeaderEntity> dataHeaderOptional = dataHeaderServiceImpl.getDataHeaderByName(name);
         if (dataHeaderOptional.isPresent()) {

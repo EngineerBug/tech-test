@@ -8,6 +8,7 @@ public class Constant {
 
 	public static final String URI_ISOK = ADDRESS + "dataserver/isok";
     public static final String URI_PUSHDATA = ADDRESS + "dataserver/pushdata";
+    public static final String URI_PUSHBIGDATA = ADDRESS + "hadoopserver/pushbigdata";
     public static final String URI_GETDATA = ADDRESS + "dataserver/data/{blockType}";
     public static final String URI_PATCHDATA = ADDRESS + "dataserver/update/{name}/{newBlockType}";
 }
