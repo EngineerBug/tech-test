@@ -8,6 +8,7 @@ import org.hmxlabs.techtest.server.service.impl.DataBodyServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -20,28 +21,29 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class DataBodyServiceTests {
+public class DataBodyServiceImplTests {
 
     public static final String TEST_NAME_NO_RESULT = "TestNoResult";
 
     @Mock
     private DataStoreRepository dataStoreRepositoryMock;
 
-    private DataBodyService dataBodyService;
+    @InjectMocks
+    private DataBodyServiceImpl dataBodyServiceImpl;
 
     private DataBodyEntity expectedDataBodyEntity;
 
+    private DataHeaderEntity expectedDataHeaderEntity;
+
     @BeforeEach
     public void setup() {
-        DataHeaderEntity testDataHeaderEntity = createTestDataHeaderEntity(Instant.now());
-        expectedDataBodyEntity = createTestDataBodyEntity(testDataHeaderEntity);
-
-        dataBodyService = new DataBodyServiceImpl(dataStoreRepositoryMock);
+        expectedDataHeaderEntity = createTestDataHeaderEntity(Instant.now());
+        expectedDataBodyEntity = createTestDataBodyEntity(expectedDataHeaderEntity);
     }
 
     @Test
     public void testSaveDataBody_success() {
-        dataBodyService.saveDataBody(expectedDataBodyEntity);
+        dataBodyServiceImpl.saveDataBody(expectedDataBodyEntity);
 
         verify(dataStoreRepositoryMock, times(1))
                 .save(eq(expectedDataBodyEntity));
@@ -49,7 +51,7 @@ public class DataBodyServiceTests {
 
     @Test
     public void testGetDataByBlockType_success() {
-        dataBodyService.getDataByBlockType(BlockTypeEnum.BLOCKTYPEA);
+        dataBodyServiceImpl.getDataByBlockType(BlockTypeEnum.BLOCKTYPEA);
 
         verify(dataStoreRepositoryMock, times(1))
                 .findByDataHeaderEntity_Blocktype(eq(BlockTypeEnum.BLOCKTYPEA));

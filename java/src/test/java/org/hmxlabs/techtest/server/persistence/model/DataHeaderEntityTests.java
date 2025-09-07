@@ -3,14 +3,11 @@ package org.hmxlabs.techtest.server.persistence.model;
 import org.hmxlabs.techtest.TestDataHelper;
 import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(MockitoExtension.class)
 public class DataHeaderEntityTests {
 
     @Test

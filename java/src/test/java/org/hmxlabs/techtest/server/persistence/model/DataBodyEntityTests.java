@@ -3,8 +3,6 @@ package org.hmxlabs.techtest.server.persistence.model;
 import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 
@@ -13,10 +11,10 @@ import static org.hmxlabs.techtest.TestDataHelper.TEST_NAME;
 import static org.hmxlabs.techtest.TestDataHelper.createTestDataBodyEntity;
 import static org.hmxlabs.techtest.TestDataHelper.createTestDataHeaderEntity;
 
-@ExtendWith(MockitoExtension.class)
 public class DataBodyEntityTests {
 
     DataBodyEntity dataBodyEntity;
+
     DataHeaderEntity dataHeaderEntity;
 
     @BeforeEach

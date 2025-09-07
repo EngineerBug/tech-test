@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
@@ -40,14 +41,17 @@ public class ServerControllerComponentTest {
 	@Mock
 	private Server serverMock;
 
-	private DataEnvelope testDataEnvelope;
-	private ObjectMapper objectMapper;
-	private MockMvc mockMvc;
+	@InjectMocks
 	private ServerController serverController;
+
+	private DataEnvelope testDataEnvelope;
+
+	private ObjectMapper objectMapper;
+
+	private MockMvc mockMvc;
 
 	@BeforeEach
 	public void setUp() throws HadoopClientException, NoSuchAlgorithmException, IOException {
-		serverController = new ServerController(serverMock);
 		mockMvc = standaloneSetup(serverController).build();
 		objectMapper = Jackson2ObjectMapperBuilder
 				.json()
@@ -192,7 +196,7 @@ public class ServerControllerComponentTest {
 		when(serverMock.updateBlockType(any(String.class), any(BlockTypeEnum.class))).thenReturn(false);
 
 		MvcResult mvcResult = mockMvc.perform(patch(Constant.URI_PATCHDATA, "NAME", BlockTypeEnum.BLOCKTYPEB))
-				.andExpect(status().is(404))
+				.andExpect(status().is(400))
 				.andReturn();
 
 		boolean didUpdate = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
