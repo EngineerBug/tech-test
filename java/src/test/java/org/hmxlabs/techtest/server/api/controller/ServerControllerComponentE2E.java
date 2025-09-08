@@ -1,24 +1,34 @@
 package org.hmxlabs.techtest.server.api.controller;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.hmxlabs.techtest.Constant;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,6 +49,22 @@ import org.hmxlabs.techtest.server.persistence.BlockTypeEnum;
 @Transactional
 public class ServerControllerComponentE2E {
 
+    // this static class mocks the output to the Hadoop service 
+    // so that the tests don't fail randomly 
+    @TestConfiguration
+    static class WebClientTestConfig {
+        @Bean
+        @Primary
+        public WebClient webClientMock() {
+            ExchangeFunction mockExchange = request -> 
+                Mono.just(ClientResponse.create(HttpStatus.OK)
+                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                        .body("\"OK\"")
+                                        .build());
+            return WebClient.builder().exchangeFunction(mockExchange).build();
+        }
+    }
+
     @LocalServerPort
 	private int port;
 
@@ -57,8 +83,13 @@ public class ServerControllerComponentE2E {
     public final String URI_GETDATA = ADDRESS + "dataserver/data/{blockType}";
     public final String URI_PATCHDATA = ADDRESS + "dataserver/update/{name}/{newBlockType}";
 
+    @BeforeAll
+    public static void classSetup() {
+
+    }
+
     @BeforeEach
-	public void setUp() throws HadoopClientException, NoSuchAlgorithmException, IOException {
+	public void setUp() throws HadoopClientException, IOException {
 		mockMvc = standaloneSetup(serverController).build();
 		objectMapper = Jackson2ObjectMapperBuilder
 				.json()
