@@ -25,6 +25,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Receives raw network traffic from the API
+ * Checks and converts the data to a format compatible with the database
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,9 +45,10 @@ public class ServerImpl implements Server {
 
     /**
      * Exercise 2, 5
+     * Checks if the parameter is valid data that should be persisted.
+     * Calls function to persist the data.
      * 
-     * 
-     * @param envelope
+     * @param envelope - the data received from the API to be persisted
      * @return true if there is a match with the client provided checksum.
      */
     @Override
@@ -54,8 +59,6 @@ public class ServerImpl implements Server {
         if (Objects.equals(serverChecksumString, envelope.getDataChecksum().getDataChecksum())) {
             persist(envelope);
             log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
-
-            // Start async datalake persistence
 
             return true;
         }
@@ -68,7 +71,9 @@ public class ServerImpl implements Server {
      * Exercise 2, 5
      * Converts the DataEnvelope to a DataBodyEntity that the database can persist.
      * Then calls the method to send the data to the database.
-     * @param envelope
+     * Then calls the method to call the Hadoop service.
+     * 
+     * @param envelope - the data received from the API to be persisted
      */
     private void persist(DataEnvelope envelope) {
         log.info("Persisting data with attribute name: {}", envelope.getDataHeader().getName());
@@ -82,14 +87,15 @@ public class ServerImpl implements Server {
         try {
             saveDataToLake(dataBodyEntity);
         } catch (HadoopClientException e) {
-            log.error("The external hadoop service failed");
+            log.error("The external hadoop service failed.");
         }
     }
 
     /**
      * Exercise 2
      * Makes the actual call to the service layer to persist the data.
-     * @param dataBodyEntity
+     * 
+     * @param dataBodyEntity - the database-ready data to be persisted
      */
     private void saveDataToDatabase(DataBodyEntity dataBodyEntity) {
         dataBodyServiceImpl.saveDataBody(dataBodyEntity);
@@ -97,7 +103,9 @@ public class ServerImpl implements Server {
 
     /**
      * Exercise 5
-     * @param dataBodyEntity
+     * Makes the call to the service layer to send the data to the datalake.
+     * 
+     * @param dataBodyEntity - the database-ready data to be persisted
      * @throws HadoopClientException
      */
     private void saveDataToLake(DataBodyEntity dataBodyEntity) throws HadoopClientException {
@@ -106,9 +114,10 @@ public class ServerImpl implements Server {
 
     /**
      * Exercise 3
-     * Gets all the datas from the database with a particular type.
+     * Gets all the datas from the database with a particular type and returns them to the API
+     * 
      * @param blockType - the type of block to get
-     * @returns a list of DataEnvolopes, all with the same type
+     * @returns List<DataEnvelope> - a list of DataEnvolopes, all with the same type
      */
     @Override
     public List<DataEnvelope> getDataEnvelopesOfType(BlockTypeEnum blockType) {
@@ -119,10 +128,10 @@ public class ServerImpl implements Server {
 
     /**
      * Exercise 3
-     * 
      * Maps a list of DataBodyEntity objects to a list of DataEnvelope objects.
-     * @param dataBodyEntities
-     * @return dataEnvelopes
+     * 
+     * @param dataBodyEntities - the datas fetched from the database
+     * @return List<DataEnvelope> - the datas to be sent to the API
      */
     private List<DataEnvelope> mapDataBodyEntitiesToDataEnvelopes(List<DataBodyEntity> dataBodyEntities) {
         return dataBodyEntities.stream()
@@ -132,9 +141,10 @@ public class ServerImpl implements Server {
 
     /**
      * Exercise 3
+     * Maps a single DataBodyEntity object onto a single DataEnvelope object.
      * 
-     * @param dataBodyEntity
-     * @return
+     * @param dataBodyEntity - the data fetched from the database
+     * @return DataEnvelope - the data to be sent to the API
      */
     private DataEnvelope mapDataBodyEntityToDataEnvelope(DataBodyEntity dataBodyEntity) {
         return new DataEnvelope(
@@ -145,7 +155,11 @@ public class ServerImpl implements Server {
 
     /**
      * Exercise 4
+     * Makes the call to the database to update the DataBlockEntity's DataHeaderEntity.
      * 
+     * @param name - the unique identifier for a datablock header
+     * @param newBlockType - the replacement type for the datablock header
+     * @return boolean - if the update persisted successfully
      */
     @Override
     public boolean updateBlockType(String name, BlockTypeEnum newBlockType) {
@@ -161,7 +175,11 @@ public class ServerImpl implements Server {
     
     /**
      * Exercise 4
+     * Fetches the the data header from the database to check is has persisted the update.
      * 
+     * @param name - the unique identifier for a datablock header
+     * @param newBlockType - the replacement type for the datablock header
+     * @return boolean - if the update persisted successfully
      */
     private boolean checkUpdatePersisted(String name, BlockTypeEnum newBlockType) {
         Optional<DataHeaderEntity> dataHeaderOptional = dataHeaderServiceImpl.getDataHeaderByName(name);

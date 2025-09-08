@@ -27,6 +27,13 @@ public class DataEnvelope {
     @NotNull
     private DataChecksum dataChecksum;
 
+    /**
+     * Two DataEnvelopes are said to be equal if:
+     * - names are the same
+     * - of the same type
+     * - contains the same data
+     * - calculates to the same checksum
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

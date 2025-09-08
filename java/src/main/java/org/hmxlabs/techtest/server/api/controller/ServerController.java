@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * This class contains all the API endpoints for the server.
- * @url /dataserver
+ * The @xxxMapping annotations denote methods directly exposed to the network for clients to call.
  */
 @Slf4j
 @Controller
@@ -39,6 +39,7 @@ public class ServerController {
 
     /**
      * A simple endpoint that will always return true to confirm the server is working as expected.
+     * 
      * @return Boolean - true
      */
     @GetMapping(value = "/isok", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,8 +52,8 @@ public class ServerController {
      * Endpoint for adding a piece of data in the database.
      * Will fail if the calculated chekcsum was different to the submitted checksum.
      * 
-     * @param dataEnvelope
-     * @return Boolean - whether the object was successfully persisted
+     * @param dataEnvelope - the data to be persisted in a new data block
+     * @return ResponseEntity<Boolean> - whether the object was successfully persisted; wrapped for network communication
      */
     @PostMapping(value = "/pushdata", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) {
@@ -71,9 +72,11 @@ public class ServerController {
     }
 
     /**
+     * Endpoint for fetching pieces of data in the database of the same type.
      * Spring automatically handles not being able to resolve blockType to a BlockTypeEnum
+     * 
      * @param blocktype - 
-     * @return 
+     * @return List<DataEnvelope> - all data blocks with the required type; wrapped for network communication
      */
     @GetMapping(value = "/data/{blockType}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DataEnvelope>> getByBlockType(@PathVariable("blockType") BlockTypeEnum blockType) {
@@ -87,6 +90,13 @@ public class ServerController {
         }
     }
 
+    /**
+     * Endpoint for updating the type of a piece of data in the database.
+     * 
+     * @param name - the unique identifier of a block of data
+     * @param newBlockType - the block type the data should be updated to.
+     * @return ResponseEntity<Boolean> - if the block was successfully updated; wrapped for network communication
+     */
     @PatchMapping(value = "/update/{name}/{newBlockType}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> updateBlockType(@PathVariable("name") String name, @PathVariable("newBlockType") BlockTypeEnum newBlockType) {
         log.info("Updating type of datablock {} to: {}", name, newBlockType);

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Calls the DataBodyRespository classes to interact with the database.
+ */
 @Service
 @RequiredArgsConstructor
 public class DataBodyServiceImpl implements DataBodyService {

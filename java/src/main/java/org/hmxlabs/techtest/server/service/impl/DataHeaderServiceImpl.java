@@ -8,6 +8,9 @@ import org.hmxlabs.techtest.server.persistence.model.DataHeaderEntity;
 import org.hmxlabs.techtest.server.persistence.repository.DataHeaderRepository;
 import org.springframework.stereotype.Service;
 
+/**
+ * Calls the DataHeaderRespository class to interact with the database.
+ */
 @Service
 @RequiredArgsConstructor
 public class DataHeaderServiceImpl implements org.hmxlabs.techtest.server.service.DataHeaderService {

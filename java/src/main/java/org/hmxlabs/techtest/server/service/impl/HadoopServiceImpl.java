@@ -14,6 +14,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Handles all network communication with the Hadoop service.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,14 @@ public class HadoopServiceImpl implements HadoopService {
 
     private final WebClient webClient;
 
+    /**
+     * Sends a request to the hadoop service to persist a data the datalake.
+     * Due to the service being new, long wait times and instability are to be expected, 
+     * therefore, @Retryable allows the method to be be executed again if it fails (up to three).
+     * 
+     * @param dataBodyEntity - the data to be persisted
+     * @throws HadoopClientException - an exception needs to be thrown in order to trigger the @Transaction rollback
+     */
     @Override
     @Retryable
     public void saveBlockToHadoop(DataBodyEntity dataBodyEntity) throws HadoopClientException {

@@ -15,6 +15,7 @@ import java.util.List;
 
 /**
  * Client code does not require any test coverage
+ * Contains code for sending and reciving requests to/from the server.
  */
 @Service
 @Slf4j
@@ -24,7 +25,9 @@ public class ClientImpl implements Client {
     private final WebClient webClient;
 
     /**
-     * A method that sends an HTTP request to the server to persist a data
+     * A method that sends an HTTP request to the server to persist a data.
+     * Note: may fail due to new hadoop service instability.
+     * 
      * @param dataEnvelope - the data being persisted
      */
     @Override
@@ -52,6 +55,13 @@ public class ClientImpl implements Client {
         }
     }
 
+    /**
+     * Sends a get request to the server's URI_GETDATA endpoint
+     * retrieves all datablocks of a particular type.
+     * 
+     * @param blockType - the type of blocks to fetch
+     * @returns List<DataEnvelope> - all the data encoded as DataEnvelope objects.
+     */
     @Override
     public List<DataEnvelope> getData(String blockType) {
         log.info("Query for data with header block type {}", blockType);
@@ -77,6 +87,14 @@ public class ClientImpl implements Client {
         }
     }
 
+    /**
+     * Sends a request to the server's URI_PATCHDATA endpoint 
+     * to update the type of a block with a particular name.
+     * 
+     * @param blockName - the unique identifying name of the block
+     * @param newBlockType - the type the block should be updated TO.
+     * @return boolean - has the server updated the field?
+     */
     @Override
     public boolean updateData(String blockName, String newBlockType) {
         log.info("Updating blocktype to {} for block with name {}", newBlockType, blockName);
