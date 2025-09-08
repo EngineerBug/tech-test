@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '3.2.3'
 	id 'java'
 	id 'jacoco'
+    id 'maven-publish' // for github actions
 }
 
 group = 'org.hmxlabs'
@@ -70,6 +71,15 @@ jacocoTestCoverageVerification {
             limit {
                 minimum = 0.80 // fail build if coverage < 80%
             }
+        }
+    }
+}
+
+// for github actions
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java  // for Java projects
         }
     }
 }
