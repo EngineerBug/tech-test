@@ -1,5 +1,28 @@
 # Java Technical Test
 
+## Turning it on
+
+Compile and test the project: ./gradlew build
+
+Compile without testing: ./gradlew -x test
+
+Run the project: ./gradlew bootrun
+
+## Using the Project
+
+Project runs on localhost:8090
+
+Endpoints:
+- GET /dataserver/isok ; returns true if the server is running correctly
+- POST /dataserver/pushdata ; sends a DataEnvelope to be persisted in the database and the organisation's datalake
+- GET /dataserver/data/{blockType} ; gets all datas in the database with the specified type (encoded as json DataEnvelopes)
+- PATCH /dataserver/update/{name}/{newBlockType} ; updates the type of a single data to the specified type
+- POST /hadoopserver/pushbigdata ; persists a DataEnvelope in the organisations datalake (WARNING; service is new, may be unstable)
+
+Project also comes with a Client class which contains several methods for sending requests to the server.
+
+# Specification
+
 This repository contains a Java technical test project, focusing on a simplified microservice-based architecture. The project involves completing unfinished functionality related to saving arbitrary bank data blocks to a database and interacting with external services.
 
 ## Scenario Overview
